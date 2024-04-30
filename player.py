@@ -6,8 +6,8 @@ import numpy as np
 import base64
 from threading import Semaphore, Lock
 
-# Sentinel value to indicate the end of processing
-SENTINEL = None
+# value to indicate the end of processing
+eof  = None
 
 # Flag to signal the main thread to close the window
 close_window_flag = False
@@ -45,7 +45,7 @@ def extractFrames(fileName, outputBuffer, bufferLock, emptySlots, filledSlots, m
     # Signal the end of processing by adding a sentinel value to the buffer
     emptySlots.acquire()
     bufferLock.acquire()
-    outputBuffer.append(SENTINEL)
+    outputBuffer.append(eof)
     bufferLock.release()
     filledSlots.release()
 
@@ -72,7 +72,7 @@ def convertFramesToGrayscale(inputBuffer, outputBuffer, bufferLock, inputLock, o
         inputEmptySlots.release()
 
         # Check if it's the sentinel value
-        if frame is SENTINEL:
+        if frame is eof:
             # Add sentinel value to output buffer
             outputEmptySlots.acquire()
             outputLock.acquire()
@@ -124,7 +124,7 @@ def displayFrames(inputBuffer, bufferLock, filledSlots, emptySlots):
         emptySlots.release()
 
         # Check if it's the sentinel value
-        if frame is SENTINEL:
+        if frame is eof:
             break
 
         print(f'Displaying frame {count}')        
